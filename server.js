@@ -6,15 +6,42 @@ var TUTUM_API_KEY = process.env.TUTUM_API_KEY || '';
 var HIPCHAT_ROOM = process.env.HIPCHAT_ROOM || '';
 var HIPCHAT_API_KEY = process.env.HIPCHAT_API_KEY || '';
 
+var TUTUM_HTTP_API = 'https://dashboard.tutum.co';
 var TUTUM_STREAM_API = 'wss://stream.tutum.co/v1/events';
 
 var WebSocket = require('faye-websocket');
 var HipChatClient = require('hipchat-client');
 var hipchat = new HipChatClient(HIPCHAT_API_KEY);
+var request = require('request-json');
+var client = request.createClient();
+
+var sendDefaultMessage = function(msg) {
+
+    client.get(TUTUM_HTTP_API + msg.resource_uri, function (error, response, body) {
+
+        var container = body;
+        var obj = {
+            'type': msg.type,
+            'state': msg.state,
+            'container': body.name
+        };
+        sendMessage(JSON.stringify(msg));
+    });
+};
 
 var sendContainerMessage = function(msg) {
 
-    sendMessage(JSON.stringify(msg));
+    client.get(TUTUM_HTTP_API + msg.resource_uri, function (error, response, body) {
+
+        var container = body;
+        var obj = {
+            'type': msg.type,
+            'state': msg.state,
+            'container': body.name
+        };
+        sendMessage(JSON.stringify(msg));
+    });
+
 };
 
 var sendServiceMessage = function(msg) {
@@ -74,22 +101,23 @@ ws.on('message', function(event) {
     console.log(msg);
 
     if (msg.type == 'container') {
-        sendContainerMessage(msg);
+        sendDefaultMessage(msg);
     }
     else if (msg.type == 'service') {
-        sendServiceMessage(msg);
+        sendDefaultMessage(msg);
     }
     else if (msg.type == 'stack') {
-        sendStackMessage(msg);
+        sendDefaultMessage(msg);
     }
     else if (msg.type == 'nodecluster') {
-        sendNodeClusterkMessage(msg);
+        sendDefaultMessage(msg);
     }
     else if (msg.type == 'node') {
         sendNodeMessage(msg);
     }
     else if (msg.type == 'action') {
-        sendActionMessage(msg);
+        // skip action messages
+        // sendActionMessage(msg);
     }
     else if (msg.type == 'error') {
         sendErrorMessage(msg);

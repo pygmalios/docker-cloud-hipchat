@@ -19,6 +19,7 @@
     "lodash": "~2.4.1",
     "forever": "~0.11.0",
     "async": "~0.9.0",
+    "request-json": "~0.5.2",
     "faye-websocket": "~0.10.0",
     "hipchat-client": "~1.0.4"
   },
