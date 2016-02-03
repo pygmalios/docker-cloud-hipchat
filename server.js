@@ -19,13 +19,12 @@ var sendDefaultMessage = function(msg) {
 
     client.get(TUTUM_HTTP_API + msg.resource_uri, function (error, response, body) {
 
-        var container = body;
         var obj = {
             'type': msg.type,
             'state': msg.state,
             'container': body.name
         };
-        sendMessage(JSON.stringify(msg));
+        sendMessage(JSON.stringify(obj));
     });
 };
 
@@ -39,7 +38,7 @@ var sendContainerMessage = function(msg) {
             'state': msg.state,
             'container': body.name
         };
-        sendMessage(JSON.stringify(msg));
+        sendMessage(JSON.stringify(container));
     });
 
 };
