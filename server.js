@@ -128,7 +128,7 @@ var sendMessage = function(message){
 
     hipchat.api.rooms.message({
         room_id: HIPCHAT_ROOM,
-        from: 'Tutum Stream',
+        from: 'Tutum',
         color: 'gray',
         message: message
     }, function (err, res) {
