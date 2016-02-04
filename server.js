@@ -8,6 +8,7 @@ var HIPCHAT_API_KEY = process.env.HIPCHAT_API_KEY || '';
 
 var TUTUM_HTTP_API = 'https://dashboard.tutum.co';
 var TUTUM_STREAM_API = 'wss://stream.tutum.co/v1/events';
+var AUTHORIZATION_HEADER = 'Basic ' + new Buffer(TUTUM_USER + ':' + TUTUM_API_KEY).toString('base64');
 
 var WebSocket = require('faye-websocket');
 var HipChatClient = require('hipchat-client');
@@ -15,10 +16,18 @@ var hipchat = new HipChatClient(HIPCHAT_API_KEY);
 var request = require('request-json');
 
 var client = request.createClient(TUTUM_HTTP_API);
+client.headers['Authorization'] = AUTHORIZATION_HEADER;
+
+var getResource = function(resource_uri, cb) {
+    client.get(TUTUM_HTTP_API + resource_uri, function (error, response, body) {
+        return cb(error, response, body);
+    });
+};
 
 var sendDefaultMessage = function(msg) {
 
-    client.get(TUTUM_HTTP_API + msg.resource_uri, function (error, response, body) {
+    getResource(msg.resource_uri, function (error, response, body) {
+        console.log('body:', body);
 
         var obj = {
             'type': msg.type,
@@ -31,7 +40,7 @@ var sendDefaultMessage = function(msg) {
 
 var sendContainerMessage = function(msg) {
 
-    client.get(TUTUM_HTTP_API + msg.resource_uri, function (error, response, body) {
+    getResource(msg.resource_uri, function (error, response, body) {
 
         var container = body;
         var obj = {
@@ -66,14 +75,45 @@ var sendNodeMessage = function(msg) {
 
 var sendActionMessage = function(msg) {
 
-    client.get(TUTUM_HTTP_API + msg.resource_uri, function (error, response, body) {
+    getResource(msg.resource_uri, function (error, response, body) {
+
+        console.log('action:', body);
 
         var obj = {
             'type': msg.type,
             'state': body.state,
             'action': body.action
         };
-        sendMessage(JSON.stringify(obj));
+
+        getResource(body.object, function(error, response, body){
+
+            console.log('object:', body);
+
+            obj.name = body.name;
+            sendMessage(JSON.stringify(obj));
+        });
+    });
+};
+
+var sendBuildMessage = function(msg) {
+
+    getResource(msg.resource_uri, function (error, response, body) {
+
+        console.log('build:', body);
+
+        var obj = {
+            'type': msg.type,
+            'branch': body.branch,
+            'tag': body.tag,
+            'state': body.state
+        };
+        getResource(body.image, function(error, response, body){
+
+            console.log('image:', body);
+
+            obj.name = body.name;
+            sendMessage(JSON.stringify(obj));
+        });
     });
 };
 
@@ -84,7 +124,7 @@ var sendErrorMessage = function(msg) {
 
 var sendMessage = function(message){
 
-    console.log(message);
+    console.log('===', message);
 
     hipchat.api.rooms.message({
         room_id: HIPCHAT_ROOM,
@@ -101,7 +141,7 @@ var sendMessage = function(message){
 
 var ws = new WebSocket.Client(TUTUM_STREAM_API, null, {
     headers: {
-        'Authorization': 'Basic ' + new Buffer(TUTUM_USER + ':' + TUTUM_API_KEY).toString('base64')
+        'Authorization': AUTHORIZATION_HEADER
     }
 });
 
@@ -111,7 +151,8 @@ ws.on('open', function(event) {
 
 ws.on('message', function(event) {
     var msg = JSON.parse(event.data);
-    //console.log(msg);
+    console.log('\n');
+    console.log('on message:', msg);
 
     if (msg.type == 'container') {
         sendDefaultMessage(msg);
@@ -124,6 +165,9 @@ ws.on('message', function(event) {
     }
     else if (msg.type == 'image') {
         sendDefaultMessage(msg);
+    }
+    else if (msg.type == 'buildsetting') {
+        sendBuildMessage(msg);
     }
     else if (msg.type == 'nodecluster') {
         sendDefaultMessage(msg);
