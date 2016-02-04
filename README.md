@@ -1,2 +1,9 @@
 # tutum-stream
-Tutum stream API reader
+Tutum - Hipchat notifications
+
+### ENV VARIABLES
+
+- TUTUM_USER=**TUTUM USERNAME**
+- TUTUM_API_KEY=**TUTUM API KEY**
+- HIPCHAT_ROOM=**HIPCHAT ROOM**
+- HIPCHAT_API_KEY=**HIPCHAT API KEY**

@@ -1,6 +1,6 @@
 {
   "name": "tutum-stream",
-  "description": "Tutum stream API reader.",
+  "description": "Tutum - Hipchat notifications",
   "version": "0.1.0",
   "private": true,
   "authors": ["Jan Antala <hello@janantala.com>"],
