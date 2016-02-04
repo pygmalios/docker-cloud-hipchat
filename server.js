@@ -13,7 +13,8 @@ var WebSocket = require('faye-websocket');
 var HipChatClient = require('hipchat-client');
 var hipchat = new HipChatClient(HIPCHAT_API_KEY);
 var request = require('request-json');
-var client = request.createClient();
+
+var client = request.createClient(TUTUM_HTTP_API);
 
 var sendDefaultMessage = function(msg) {
 
@@ -116,6 +117,9 @@ ws.on('message', function(event) {
         sendDefaultMessage(msg);
     }
     else if (msg.type == 'stack') {
+        sendDefaultMessage(msg);
+    }
+    else if (msg.type == 'image') {
         sendDefaultMessage(msg);
     }
     else if (msg.type == 'nodecluster') {
