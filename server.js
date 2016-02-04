@@ -83,6 +83,9 @@ var sendErrorMessage = function(msg) {
 };
 
 var sendMessage = function(message){
+
+    console.log(message);
+
     hipchat.api.rooms.message({
         room_id: HIPCHAT_ROOM,
         from: 'Tutum Stream',
@@ -108,7 +111,7 @@ ws.on('open', function(event) {
 
 ws.on('message', function(event) {
     var msg = JSON.parse(event.data);
-    console.log(msg);
+    //console.log(msg);
 
     if (msg.type == 'container') {
         sendDefaultMessage(msg);
