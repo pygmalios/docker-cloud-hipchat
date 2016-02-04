@@ -22,7 +22,7 @@ var sendDefaultMessage = function(msg) {
         var obj = {
             'type': msg.type,
             'state': msg.state,
-            'container': body.name
+            'name': body.name
         };
         sendMessage(JSON.stringify(obj));
     });
@@ -36,7 +36,7 @@ var sendContainerMessage = function(msg) {
         var obj = {
             'type': msg.type,
             'state': msg.state,
-            'container': body.name
+            'name': body.name
         };
         sendMessage(JSON.stringify(container));
     });
@@ -65,7 +65,15 @@ var sendNodeMessage = function(msg) {
 
 var sendActionMessage = function(msg) {
 
-    sendMessage(JSON.stringify(msg));
+    client.get(TUTUM_HTTP_API + msg.resource_uri, function (error, response, body) {
+
+        var obj = {
+            'type': msg.type,
+            'state': body.state,
+            'action': body.action
+        };
+        sendMessage(JSON.stringify(obj));
+    });
 };
 
 var sendErrorMessage = function(msg) {
@@ -115,8 +123,7 @@ ws.on('message', function(event) {
         sendNodeMessage(msg);
     }
     else if (msg.type == 'action') {
-        // skip action messages
-        // sendActionMessage(msg);
+        sendActionMessage(msg);
     }
     else if (msg.type == 'error') {
         sendErrorMessage(msg);
