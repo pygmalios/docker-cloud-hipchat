@@ -88,7 +88,9 @@ var sendMessage = function(message){
         color: 'gray',
         message: message
     }, function (err, res) {
-        if (err) { throw err; }
+        if (err) {
+            console.log(err);
+        }
         console.log(res);
     });
 };
