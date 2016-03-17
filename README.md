@@ -1,9 +1,9 @@
-# tutum-stream
-Tutum - Hipchat notifications
+# docker-cloud-hipchat
+Docker Cloud - Hipchat notifications
 
 ### ENV VARIABLES
 
-- TUTUM_USER=**TUTUM USERNAME**
-- TUTUM_API_KEY=**TUTUM API KEY**
+- DOCKER_CLOUD_USER=**DOCKER_CLOUD USERNAME**
+- DOCKER_CLOUD_API_KEY=**DOCKER_CLOUD API KEY**
 - HIPCHAT_ROOM=**HIPCHAT ROOM**
 - HIPCHAT_API_KEY=**HIPCHAT API KEY**

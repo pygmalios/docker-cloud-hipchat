@@ -1,25 +1,25 @@
 'use strict';
 
-var TUTUM_USER = process.env.TUTUM_USER || '';
-var TUTUM_API_KEY = process.env.TUTUM_API_KEY || '';
+var DOCKER_CLOUD_USER = process.env.DOCKER_CLOUD_USER || '';
+var DOCKER_CLOUD_API_KEY = process.env.DOCKER_CLOUD_API_KEY || '';
 
 var HIPCHAT_ROOM = process.env.HIPCHAT_ROOM || '';
 var HIPCHAT_API_KEY = process.env.HIPCHAT_API_KEY || '';
 
-var TUTUM_HTTP_API = 'https://dashboard.tutum.co';
-var TUTUM_STREAM_API = 'wss://stream.tutum.co/v1/events';
-var AUTHORIZATION_HEADER = 'Basic ' + new Buffer(TUTUM_USER + ':' + TUTUM_API_KEY).toString('base64');
+var DOCKER_CLOUD_HTTP_API = 'https://cloud.docker.com';
+var DOCKER_CLOUD_STREAM_API = 'wss://ws.cloud.docker.com';
+var AUTHORIZATION_HEADER = 'Basic ' + new Buffer(DOCKER_CLOUD_USER + ':' + DOCKER_CLOUD_API_KEY).toString('base64');
 
 var WebSocket = require('faye-websocket');
 var HipChatClient = require('hipchat-client');
 var hipchat = new HipChatClient(HIPCHAT_API_KEY);
 var request = require('request-json');
 
-var client = request.createClient(TUTUM_HTTP_API);
+var client = request.createClient(DOCKER_CLOUD_HTTP_API);
 client.headers['Authorization'] = AUTHORIZATION_HEADER;
 
 var getResource = function(resource_uri, cb) {
-    client.get(TUTUM_HTTP_API + resource_uri, function (error, response, body) {
+    client.get(DOCKER_CLOUD_HTTP_API + resource_uri, function (error, response, body) {
         return cb(error, response, body);
     });
 };
@@ -139,7 +139,7 @@ var sendMessage = function(message){
     });
 };
 
-var ws = new WebSocket.Client(TUTUM_STREAM_API, null, {
+var ws = new WebSocket.Client(DOCKER_CLOUD_STREAM_API, null, {
     headers: {
         'Authorization': AUTHORIZATION_HEADER
     }
