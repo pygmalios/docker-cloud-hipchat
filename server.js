@@ -1,25 +1,25 @@
 'use strict';
 
-var DOCKER_CLOUD_USER = process.env.DOCKER_CLOUD_USER || '';
-var DOCKER_CLOUD_API_KEY = process.env.DOCKER_CLOUD_API_KEY || '';
+var DOCKERCLOUD_USER = process.env.DOCKERCLOUD_USER || '';
+var DOCKERCLOUD_API_KEY = process.env.DOCKERCLOUD_API_KEY || '';
 
 var HIPCHAT_ROOM = process.env.HIPCHAT_ROOM || '';
 var HIPCHAT_API_KEY = process.env.HIPCHAT_API_KEY || '';
 
-var DOCKER_CLOUD_HTTP_API = 'https://cloud.docker.com';
-var DOCKER_CLOUD_STREAM_API = 'wss://ws.cloud.docker.com';
-var AUTHORIZATION_HEADER = 'Basic ' + new Buffer(DOCKER_CLOUD_USER + ':' + DOCKER_CLOUD_API_KEY).toString('base64');
+var DOCKERCLOUD_HTTP_API = 'https://cloud.docker.com';
+var DOCKERCLOUD_STREAM_API = 'wss://ws.cloud.docker.com/api/audit/v1/events/';
+var AUTHORIZATION_HEADER = 'Basic ' + new Buffer(DOCKERCLOUD_USER + ':' + DOCKERCLOUD_API_KEY).toString('base64');
 
 var WebSocket = require('faye-websocket');
 var HipChatClient = require('hipchat-client');
 var hipchat = new HipChatClient(HIPCHAT_API_KEY);
 var request = require('request-json');
 
-var client = request.createClient(DOCKER_CLOUD_HTTP_API);
+var client = request.createClient(DOCKERCLOUD_HTTP_API);
 client.headers['Authorization'] = AUTHORIZATION_HEADER;
 
 var getResource = function(resource_uri, cb) {
-    client.get(DOCKER_CLOUD_HTTP_API + resource_uri, function (error, response, body) {
+    client.get(DOCKERCLOUD_HTTP_API + resource_uri, function (error, response, body) {
         return cb(error, response, body);
     });
 };
@@ -36,36 +36,6 @@ var sendDefaultMessage = function(msg) {
         };
         sendMessage(JSON.stringify(obj));
     });
-};
-
-var sendContainerMessage = function(msg) {
-
-    getResource(msg.resource_uri, function (error, response, body) {
-
-        var container = body;
-        var obj = {
-            'type': msg.type,
-            'state': msg.state,
-            'name': body.name
-        };
-        sendMessage(JSON.stringify(container));
-    });
-
-};
-
-var sendServiceMessage = function(msg) {
-
-    sendMessage(JSON.stringify(msg));
-};
-
-var sendStackMessage = function(msg) {
-
-    sendMessage(JSON.stringify(msg));
-};
-
-var sendNodeClusterkMessage = function(msg) {
-
-    sendMessage(JSON.stringify(msg));
 };
 
 var sendNodeMessage = function(msg) {
@@ -128,7 +98,7 @@ var sendMessage = function(message){
 
     hipchat.api.rooms.message({
         room_id: HIPCHAT_ROOM,
-        from: 'Tutum',
+        from: 'Docker Cloud',
         color: 'gray',
         message: message
     }, function (err, res) {
@@ -139,7 +109,7 @@ var sendMessage = function(message){
     });
 };
 
-var ws = new WebSocket.Client(DOCKER_CLOUD_STREAM_API, null, {
+var ws = new WebSocket.Client(DOCKERCLOUD_STREAM_API, null, {
     headers: {
         'Authorization': AUTHORIZATION_HEADER
     }
